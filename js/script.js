@@ -126,10 +126,11 @@
   /* ============ Confeti y pétalos (canvas) ============ */
   const cv = $('#confetti'), ctx = cv.getContext('2d');
   let W = 0, H = 0;
-  const fit = () => { const r = devicePixelRatio || 1; W = innerWidth; H = innerHeight; cv.width = W * r; cv.height = H * r; ctx.setTransform(r, 0, 0, r, 0, 0); };
+  const fit = () => { const r = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; cv.width = W * r; cv.height = H * r; ctx.setTransform(r, 0, 0, r, 0, 0); };
   fit(); addEventListener('resize', fit);
   const COLORS = ['#ffd84d', '#ffc21a', '#fff1a0', '#ffffff', '#f6a3b8', '#f5b800'];
   const parts = [], ambient = [];
+  let gardenOn = false; /* mientras se ve el jardín, se apagan los pétalos de fondo para que no pese */
   function burst(x, y, n = 40) {
     if (reduced) return;
     for (let i = 0; i < n; i++) {
@@ -145,7 +146,7 @@
     const dt = Math.min((now - last) / 1000, .05); last = now;
     if (!document.hidden) {
       ctx.clearRect(0, 0, W, H);
-      ambient.forEach(p => {
+      if (!gardenOn) ambient.forEach(p => {
         p.ph += dt * 1.5; p.rot += p.vr * dt; p.y += p.vy * dt; p.x += Math.sin(p.ph) * 26 * dt;
         if (p.y > H + 20) spawnA(p, true);
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, .6 + .4 * Math.sin(p.ph));
@@ -233,25 +234,29 @@
   (function eternalGarden() {
     const sec = $('#jardin'), cvs = $('#gardenCanvas'), g = cvs.getContext('2d');
     let GW = 0, GH = 0, visible = false, started = false;
-    const fitG = () => { const r = Math.min(devicePixelRatio || 1, 2); GW = cvs.clientWidth; GH = cvs.clientHeight; cvs.width = GW * r; cvs.height = GH * r; g.setTransform(r, 0, 0, r, 0, 0); };
+    const fitG = () => { const r = Math.min(devicePixelRatio || 1, 1.5); GW = cvs.clientWidth; GH = cvs.clientHeight; cvs.width = GW * r; cvs.height = GH * r; g.setTransform(r, 0, 0, r, 0, 0); };
 
     /* Flores como imágenes: las mismas ilustraciones, convertidas a sprites */
     const defsInner = DEFS.replace(/^[\s\S]*?<defs>/, '').replace(/<\/defs>[\s\S]*$/, '');
-    const sprites = {};
+    /* Se convierten una sola vez a bitmaps pequeños: dibujarlos luego es barato */
+    const sprites = {}, SP = mobile ? 112 : 168;
     TYPES.forEach(t => {
       const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas'); c.width = c.height = SP;
+        c.getContext('2d').drawImage(img, 0, 0, SP, SP); sprites[t] = c;
+      };
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200" width="240" height="240"><defs>${defsInner}</defs>${FLOWERS[t]()}</svg>`);
-      sprites[t] = img;
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200" width="${SP}" height="${SP}"><defs>${defsInner}</defs>${FLOWERS[t]()}</svg>`);
     });
 
     /* Generación determinista por "trozos": el jardín nunca se acaba */
     const CHUNK = 420;
     const mulberry = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
     const LAYERS = [
-      { f: .3, base: .66, s: .34, a: .72, n: 6, hill: .6 },
-      { f: .6, base: .79, s: .58, a: .9, n: 5, hill: .72 },
-      { f: 1, base: .93, s: 1, a: 1, n: 3, hill: 0 }
+      { f: .3, base: .66, s: .34, a: .72, n: mobile ? 4 : 6, hill: .6 },
+      { f: .6, base: .79, s: .58, a: .9, n: mobile ? 3 : 5, hill: .72 },
+      { f: 1, base: .93, s: 1, a: 1, n: mobile ? 3 : 3, hill: 0 }
     ];
     const chunks = new Map();
     function chunk(li, k) {
@@ -287,7 +292,7 @@
         g.beginPath(); g.ellipse(lx - 14 * sc, ly - 22 * sc, 13 * sc, 5 * sc, .5, 0, 6.283); g.fill();
       }
       const img = sprites[p.t];
-      if (headEase > 0 && img.complete && img.naturalWidth) {
+      if (headEase > 0 && img) {
         const size = p.size * sc * Math.min(1.08, headEase);
         g.save(); g.translate(hxx, hyy); g.rotate(sway * .012 + (1 - headEase) * -1.2);
         g.drawImage(img, -size / 2, -size / 2, size, size); g.restore();
@@ -300,7 +305,7 @@
     function drawHill(L, tm) {
       const by = GH * L.base, amp = 26 * L.s + 6, off = cam * L.f;
       g.beginPath(); g.moveTo(0, GH);
-      for (let x = 0; x <= GW + 12; x += 12) g.lineTo(x, by - GH * .05 + Math.sin((x + off) / (170 + L.f * 90)) * amp + Math.sin((x + off) / 61) * amp * .3);
+      for (let x = 0; x <= GW + 24; x += 24) g.lineTo(x, by - GH * .05 + Math.sin((x + off) / (170 + L.f * 90)) * amp + Math.sin((x + off) / 61) * amp * .3);
       g.lineTo(GW, GH); g.closePath();
       const gr = g.createLinearGradient(0, by - 60, 0, GH);
       gr.addColorStop(0, L.f < .5 ? '#cfe7a6' : L.f < .9 ? '#a9d37f' : '#7fbe66'); gr.addColorStop(1, L.f < .5 ? '#bcdc90' : '#6aa850');
@@ -310,15 +315,11 @@
     function frame(ts) {
       requestAnimationFrame(frame);
       if (!visible || document.hidden) return;
+      if (mobile && frame.last && ts - frame.last < 30) return; /* ~33 cuadros por segundo en celular */
       const dt = Math.min((ts - (frame.last || ts)) / 1000, .05); frame.last = ts; now = ts;
       if (!dragging) { cam += (AUTO + vel) * dt; vel *= Math.pow(.04, dt); if (Math.abs(vel) < 1) vel = 0; }
       const tm = ts / 1000;
       g.clearRect(0, 0, GW, GH);
-
-      /* sol suave */
-      const sg = g.createRadialGradient(GW * .74, GH * .26, 0, GW * .74, GH * .26, GH * .5);
-      sg.addColorStop(0, 'rgba(255,255,230,.95)'); sg.addColorStop(.18, 'rgba(255,238,150,.65)'); sg.addColorStop(1, 'rgba(255,230,140,0)');
-      g.fillStyle = sg; g.fillRect(0, 0, GW, GH);
 
       LAYERS.forEach((L, li) => {
         if (li < 2) drawHill(L, tm);
@@ -335,11 +336,16 @@
         g.globalAlpha = 1;
         if (li === 2) {
           /* hierba cercana */
-          g.lineCap = 'round'; g.lineWidth = 2.4;
-          for (let x = -10; x < GW + 10; x += 8) {
-            const wx = x + off, hsh = Math.abs(Math.sin(wx * 12.9898) * 43758.5453) % 1, h = 16 + hsh * 30, sw = Math.sin(tm * 1.6 + wx * .045) * 6;
-            g.strokeStyle = hsh > .5 ? '#5da64c' : '#78bb5e';
-            g.beginPath(); g.moveTo(x, GH); g.quadraticCurveTo(x + sw * .4, GH - h * .6, x + sw, GH - h - 4); g.stroke();
+          g.lineCap = 'round'; g.lineWidth = 2.6;
+          for (let pass = 0; pass < 2; pass++) {
+            g.strokeStyle = pass ? '#5da64c' : '#78bb5e'; g.beginPath();
+            for (let x = -10; x < GW + 10; x += 12) {
+              const wx = x + off, hsh = Math.abs(Math.sin(wx * 12.9898) * 43758.5453) % 1;
+              if ((hsh > .5) !== !!pass) continue;
+              const h = 16 + hsh * 30, sw = Math.sin(tm * 1.6 + wx * .045) * 6;
+              g.moveTo(x, GH); g.quadraticCurveTo(x + sw * .4, GH - h * .6, x + sw, GH - h - 4);
+            }
+            g.stroke();
           }
           /* las que ella planta */
           for (let i = mine.length - 1; i >= 0; i--) {
@@ -386,7 +392,7 @@
       if (moved < 8 && quick && e.type === 'pointerup') {
         const r = cvs.getBoundingClientRect(), x = e.clientX - r.left, y = Math.max(GH * .2, Math.min(GH * .8, e.clientY - r.top));
         mine.push({ x: x + cam, hy: y, t: TYPES[Math.floor(Math.random() * TYPES.length)], size: rand(96, 140), ph: rand(0, 6.28), born: 0 });
-        if (mine.length > 300) mine.shift();
+        if (mine.length > (mobile ? 90 : 300)) mine.shift();
         burst(e.clientX, e.clientY, 12);
         $('#gardenHint').classList.add('gone');
         const c = $('#gardenCount'); c.textContent = mine.length === 1 ? 'Plantaste tu primera flor 🌱' : `Has plantado ${mine.length} flores 🌼`;
@@ -394,7 +400,7 @@
     };
     cvs.addEventListener('pointerup', up); cvs.addEventListener('pointercancel', up);
 
-    new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible && !started) { started = true; fitG(); } }, { threshold: .05 }).observe(sec);
+    new IntersectionObserver(es => { visible = gardenOn = es[0].isIntersecting; if (visible && !started) { started = true; fitG(); } }, { threshold: .05 }).observe(sec);
     addEventListener('resize', () => { if (started) fitG(); });
     requestAnimationFrame(frame);
   })();

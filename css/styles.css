@@ -144,3 +144,7 @@ footer{text-align:center;padding:0 20px 90px;color:var(--muted);font-size:.95rem
 /* El deseo aparece arriba del ramo para que siempre se vea en el celular */
 .wish-card.top{margin:0 auto 1rem;min-height:104px;display:flex;flex-direction:column;justify-content:center}
 .bq{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+
+/* Sol del jardín en CSS (más ligero que dibujarlo en cada cuadro) y sin desenfoques costosos */
+.garden-sec{background:radial-gradient(circle 280px at 74% 24%,rgba(255,255,232,.95) 0,rgba(255,238,150,.6) 38%,rgba(255,230,140,0) 100%),linear-gradient(#fff6cf 0%,#ffe9a6 36%,#ffdca6 60%,#f8cfa6 100%)}
+.music,.back-top{-webkit-backdrop-filter:none;backdrop-filter:none}

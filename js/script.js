@@ -93,7 +93,7 @@
     wishCard.classList.remove('pop'); void wishCard.offsetWidth; wishCard.classList.add('pop');
     const r = g.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 14);
   }
-  $('#bouquet').addEventListener('click', e => { const g = e.target.closest('.bq'); if (g) pickWish(g); });
+  $$('.bq').forEach(g => g.addEventListener('click', () => pickWish(g)));
   $('#bouquet').addEventListener('keydown', e => { const g = e.target.closest('.bq'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pickWish(g); } });
 
   /* Pastel con velas */

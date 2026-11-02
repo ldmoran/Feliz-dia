@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Feliz cumpleaños, Gaby</title>
+  <meta name="description" content="Un jardín de flores amarillas, plantado hoy para Gaby.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#fff3c4">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌼%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="locked">
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div id="sprouts" aria-hidden="true"></div>
+
+  <!-- ===== Portada: regalo cerrado ===== -->
+  <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+    <div class="gate-flower bloom" id="gateFlower" aria-hidden="true"></div>
+    <p class="eyebrow">Hoy es un día especial</p>
+    <h2 id="gateTitle">Traigo algo <em>para ti</em></h2>
+    <button class="btn" id="openBtn" type="button">Abrir mi regalo</button>
+    <p class="note">🎧 Mejor con sonido</p>
+  </div>
+
+  <main>
+    <!-- ===== 1. Portada ===== -->
+    <section class="hero" id="inicio">
+      <p class="eyebrow reveal">Feliz cumpleaños</p>
+      <h1 class="name reveal" style="--d:.1s">Gaby</h1>
+      <div class="hero-flower bloom" id="heroFlower" aria-hidden="true"></div>
+      <p class="lead reveal" style="--d:.2s">Hoy el jardín entero es tuyo.</p>
+      <a class="cue" href="#flores"><i></i>Sigue bajando</a>
+    </section>
+
+    <!-- ===== 2. Las flores que faltaban ===== -->
+    <section id="flores" class="band">
+      <div class="wrap">
+        <p class="eyebrow reveal">Las flores que faltaban</p>
+        <h2 class="reveal" style="--d:.08s">Quería regalártelas<br>y <em>no llegué a tiempo</em></h2>
+        <p class="intro reveal" style="--d:.16s">Así que las planté aquí. Una por una, amarillas, como las que habría llevado en la mano. Toca cualquier parte de la pantalla y verás cómo crece un poco más de jardín.</p>
+        <div class="row reveal" style="--d:.24s" id="rowFlowers" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- ===== 3. Ramo con deseos ===== -->
+    <section id="ramo">
+      <div class="wrap">
+        <p class="eyebrow reveal">Un ramo con deseos</p>
+        <h2 class="reveal" style="--d:.08s">Toca cada flor</h2>
+        <div class="bouquet reveal" style="--d:.16s" id="bouquet"></div>
+        <div class="wish-card" id="wishCard" aria-live="polite">
+          <small id="wishName">Elige una flor</small>
+          <p id="wishText">Cada una guarda un deseo para ti.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4. La vela ===== -->
+    <section id="vela" class="band">
+      <div class="wrap">
+        <p class="eyebrow reveal">Un momento para ti</p>
+        <h2 class="reveal" style="--d:.08s">Pide un <em>deseo</em></h2>
+        <div class="cake reveal" style="--d:.16s" id="cake"></div>
+        <button class="btn" id="blowBtn" type="button">Soplar las velas</button>
+        <p class="wish-done" id="wishDone" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ===== 5. Carta ===== -->
+    <section id="carta">
+      <div class="wrap">
+        <p class="eyebrow reveal">Unas palabras</p>
+        <h2 class="reveal" style="--d:.08s">Para <em>ti</em>, hoy</h2>
+        <article class="letter reveal" style="--d:.16s" id="letter">
+          <p class="line" style="--i:0">Gaby:</p>
+          <p class="line" style="--i:1">Hoy es tu cumpleaños y no quería que pasara sin darte algo.</p>
+          <p class="line" style="--i:2">Quería regalarte flores amarillas y no llegué a tiempo, así que decidí plantarlas aquí, para que hoy tengas un jardín esperándote al abrir el celular.</p>
+          <p class="line" style="--i:3">Dicen que las amarillas alegran cualquier lugar. Creo que por eso me hicieron pensar en ti: me encanta verte sonreír, y me alegra que nuestros caminos se cruzaran allá por 2022.</p>
+          <p class="line" style="--i:4">Ojalá hoy te abracen, te consientan y te recuerden lo mucho que vales. Y ojalá este año nuevo venga cargado de cosas bonitas.</p>
+          <p class="line" style="--i:5">Feliz cumpleaños, Gaby.</p>
+          <p class="line sign" style="--i:6">Con todo mi cariño,<br>— David</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== Jardín eterno (sorpresa) ===== -->
+    <section id="jardin" class="garden-sec" aria-label="Jardín eterno">
+      <canvas id="gardenCanvas"></canvas>
+      <div class="garden-ui top">
+        <p class="eyebrow">Una sorpresa más</p>
+        <h2>Un jardín <em>eterno</em></h2>
+        <p class="garden-sub">Para que nunca te falten flores, ni hoy ni ningún otro día.</p>
+      </div>
+      <div class="garden-ui bottom">
+        <p id="gardenHint">Desliza · toca para plantar 🌼</p>
+        <p id="gardenCount"></p>
+      </div>
+    </section>
+
+    <!-- ===== 6. Final ===== -->
+    <section class="finale">
+      <div class="wrap">
+        <div class="mini bloom reveal" id="miniFlower" aria-hidden="true"></div>
+        <h2 class="reveal" style="--d:.1s">Que este año florezca<br>todo lo que <em>deseas</em></h2>
+        <button class="btn ghost reveal" style="--d:.2s" id="againBtn" type="button">Volver al inicio ↑</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>Hecho con cariño, para Gaby 🌼</footer>
+
+  <button class="music" id="music" type="button" hidden aria-pressed="false" aria-label="Pausar o reproducir la canción">
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="music-title">Iris · Goo Goo Dolls</span>
+  </button>
+  <div class="music-hint" id="musicHint" hidden>Toca aquí para activar la música ♪</div>
+  <div id="yt-wrap" aria-hidden="true"><div id="yt"></div></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
